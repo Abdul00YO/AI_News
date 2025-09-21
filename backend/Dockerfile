@@ -1,23 +1,26 @@
-# Use official lightweight Python image
+# Use Python 3.11 slim image
 FROM python:3.11-slim
 
-# Set working directory inside container
+# Set working directory
 WORKDIR /app
 
-# Install system dependencies (if needed by sentence-transformers/torch)
+# Install system dependencies (needed for some Python libs like chromadb/sentence-transformers)
 RUN apt-get update && apt-get install -y \
+    build-essential \
     git \
-    curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first (for caching)
+# Copy requirements first (better Docker caching)
 COPY requirements.txt .
 
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy backend source code into container
+# Copy backend code into container
 COPY . .
 
-# Default command (run your rss_extraction_with_chroma_storing.py)
-CMD ["python", "rss_extraction_with_chroma_storing.py"]
+# Expose FastAPI port
+EXPOSE 8000
+
+# Start FastAPI server
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
