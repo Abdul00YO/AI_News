@@ -1,4 +1,5 @@
 "use client";
+// @ts-ignore
 import { ComposableMap, Geographies, Geography } from "react-simple-maps";
 
 const geoUrl =
