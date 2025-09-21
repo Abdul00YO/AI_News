@@ -20,22 +20,7 @@ export default function HomePage() {
         
         <div className="flex flex-col md:flex-row gap-6 justify-center items-center">
                 {/* Dashboard Card */}
-        <Link href="/dashboard" className="group relative w-64 h-40">
-          <div className="relative w-full h-full">
-            <Image
-              src="/news.jpeg" // small image for dashboard
-              alt="Latest News Dashboard"
-              fill
-              className="object-cover rounded-xl shadow-lg group-hover:scale-105 transition-transform"
-            />
-            <Button
-              size="lg"
-              className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black text-white hover:bg-gray-800"
-            >
-              📰 Explore Latest News
-            </Button>
-          </div>
-        </Link>
+        
 
                   {/* Map Card */}
         <Link href="/map" className="group relative w-64 h-40">

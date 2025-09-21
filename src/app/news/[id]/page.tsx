@@ -1,170 +1,103 @@
-// "use client";
-// import { useParams } from "next/navigation";
-// import { newsData } from "@/app/data/mockData";
-// import NewsCard from "@/app/components/NewCard"; 
-
-// export default function NewsArticlePage() {
-//   const { id } = useParams();
-//   const article = newsData.find((item) => item.id === id);
-
-//   if (!article) {
-//     return (
-//       <main className="bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 min-h-screen flex items-center justify-center text-white">
-//         <h1 className="text-3xl font-bold">❌ Article Not Found</h1>
-//       </main>
-//     );
-//   }
-
-//   // Related News (same province, exclude current)
-//   const relatedNews = newsData.filter(
-//     (item) => item.province === article.province && item.id !== article.id
-//   );
-
-//   return (
-//     <main className="bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 min-h-screen text-white">
-      
-
-//       {/* Banner */}
-//       <div className="w-full h-72 md:h-96 overflow-hidden relative">
-//         <img
-//           src={article.image}
-//           alt={article.title}
-//           className="w-full h-full object-cover"
-//         />
-//         <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-//           <h1 className="text-4xl md:text-5xl font-extrabold text-center drop-shadow-lg">
-//             {article.title}
-//           </h1>
-//         </div>
-//       </div>
-
-//       {/* Article Content */}
-//       <div className="max-w-4xl mx-auto px-6 py-10">
-//         <span className="inline-block bg-white/20 text-yellow-300 text-xs font-semibold px-3 py-1 rounded-full mb-4">
-//           📍 {article.province}
-//         </span>
-
-//         <p className="text-lg leading-relaxed text-gray-100 whitespace-pre-line">
-//           {article.content}
-//         </p>
-//       </div>
-
-//       {/* Related News Section */}
-//       {relatedNews.length > 0 && (
-//         <section className="max-w-6xl mx-auto px-6 py-10">
-//           <h2 className="text-2xl font-bold mb-6">🔗 Related News</h2>
-//           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-//             {relatedNews.map((item) => (
-//               <NewsCard key={item.id} article={item} />
-//             ))}
-//           </div>
-//         </section>
-//       )}
-
-      
-//     </main>
-//   );
-// }
-
-
-
-
+// src/app/news/[id]/page.tsx
 "use client";
-import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import NewsCard from "@/app/components/NewCard";
+import { useParams, useSearchParams } from "next/navigation";
 import { NewsItem } from "@/app/type/Newsitem";
 
-export default function NewsArticlePage() {
-  const { id } = useParams();
+
+export default function NewsDetailsPage() {
+  
+  const params = useParams();
+  const searchParams = useSearchParams();
+  const id = params?.id;
+  const region = searchParams.get("region") || "Pakistan";
+
   const [article, setArticle] = useState<NewsItem | null>(null);
-  const [relatedNews, setRelatedNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchArticle() {
+    async function fetchNewsDetails() {
+      if (!id || !region) {
+        setLoading(false);
+        return;
+      }
       try {
-        setLoading(true);
-
-        // Fetch article details by id
-        const res = await fetch(`/api?id=${id}`);
+        const res = await fetch(`/api?region=${region}&mode=details`);
         const data = await res.json();
+        
+        // Find the specific article by its ID. Use loose comparison with '=='
+        const foundArticle = data.find((item: any) => item.id == id);
 
-        if (data) setArticle(data);
-        else setArticle(null);
-
-        // Fetch related news by province
-        if (data?.provinceName) {
-          const relatedRes = await fetch(
-            `/api/news?region=${data.provinceName}`
-          );
-          const relatedData = await relatedRes.json();
-          if (Array.isArray(relatedData)) {
-            setRelatedNews(relatedData.filter((item) => item.id !== data.id));
-          }
+        if (foundArticle) {
+          setArticle(foundArticle);
+        } else {
+          console.error("Article not found:", id);
         }
       } catch (err) {
-        console.error("Error fetching article:", err);
-        setArticle(null);
-        setRelatedNews([]);
+        console.error("Error fetching news details:", err);
       } finally {
         setLoading(false);
       }
     }
+    fetchNewsDetails();
+  }, [id, region]);
 
-    fetchArticle();
-  }, [id]);
-
-  if (loading)
+  if (loading) {
     return (
-      <p className="text-white text-center mt-12">Loading article...</p>
-    );
-
-  if (!article)
-    return (
-      <main className="bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 min-h-screen flex items-center justify-center text-white">
-        <h1 className="text-3xl font-bold">❌ Article Not Found</h1>
+      <main className="flex items-center justify-center min-h-screen bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 text-white">
+        <p>Loading full article...</p>
       </main>
     );
+  }
+
+  if (!article) {
+    return (
+      <main className="flex items-center justify-center min-h-screen bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 text-white">
+        <p>Article not found. Please go back to the previous page.</p>
+      </main>
+    );
+  }
 
   return (
-    <main className="bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 min-h-screen text-white">
-      {/* Banner */}
-      <div className="w-full h-72 md:h-96 overflow-hidden relative">
-        <img
-          src={article.image_url}
-          alt={article.headline}
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-center drop-shadow-lg">
-            {article.headline}
-          </h1>
+    <main className="p-6 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 min-h-screen text-white">
+      <div className="max-w-4xl mx-auto py-12">
+        <h1 className="text-4xl md:text-5xl font-extrabold mb-4 drop-shadow-lg leading-tight">
+          {article.headline || article.title}
+        </h1>
+        {article.img && (
+          <img 
+            src={article.img} 
+            alt={article.headline} 
+            className="w-full h-auto rounded-xl shadow-lg my-6" 
+          />
+        )}
+        <div className="bg-white/10 p-6 rounded-xl shadow-lg">
+          <p className="text-gray-200 text-lg leading-relaxed mb-4">
+            <strong className="text-white">Summary:</strong> {article.brief_summary}
+          </p>
+          <p className="text-lg leading-relaxed mt-4 whitespace-pre-wrap">
+            {article.full_content || article.description}
+          </p>
         </div>
+        
+        <div className="mt-8 text-sm text-gray-400 border-t border-gray-600 pt-4">
+          <p><strong>Province:</strong> {article.provinceName}</p>
+          {article.published && (
+            <p><strong>Published:</strong> {new Date(article.published).toLocaleDateString()}</p>
+          )}
+        </div>
+        
+        {article.link && (
+          <a 
+            href={article.link} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="mt-8 inline-block text-blue-300 hover:text-blue-200 hover:underline transition-colors font-semibold"
+          >
+            Read full article at source →
+          </a>
+        )}
       </div>
-
-      {/* Article Content */}
-      <div className="max-w-4xl mx-auto px-6 py-10">
-        <span className="inline-block bg-white/20 text-yellow-300 text-xs font-semibold px-3 py-1 rounded-full mb-4">
-          📍 {article.provinceName}
-        </span>
-
-        <p className="text-lg leading-relaxed text-gray-100 whitespace-pre-line">
-          {article.details}
-        </p>
-      </div>
-
-      {/* Related News Section */}
-      {relatedNews.length > 0 && (
-        <section className="max-w-6xl mx-auto px-6 py-10">
-          <h2 className="text-2xl font-bold mb-6">🔗 Related News</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {relatedNews.map((item) => (
-              <NewsCard key={item.id} article={item} />
-            ))}
-          </div>
-        </section>
-      )}
     </main>
   );
 }
