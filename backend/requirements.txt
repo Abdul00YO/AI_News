@@ -1,0 +1,22 @@
+# Web framework
+fastapi
+uvicorn
+
+# RSS feed parsing
+feedparser
+
+# HTTP requests (if needed for fetching feeds / summaries)
+requests
+
+# Database for vector storage
+chromadb
+
+# Embedding model
+sentence-transformers
+
+# General ML/Scientific stack (used internally by transformers/embeddings)
+torch
+numpy
+
+# Optional: If you want async HTTP for future improvements
+httpx
