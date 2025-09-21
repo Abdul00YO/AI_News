@@ -17,6 +17,6 @@ sentence-transformers
 # General ML/Scientific stack (used internally by transformers/embeddings)
 torch
 numpy
-
+pytz
 # Optional: If you want async HTTP for future improvements
 httpx
