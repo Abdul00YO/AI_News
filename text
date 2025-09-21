@@ -1,0 +1,17 @@
+pak-times-chronicle/
+├── app/
+│   ├── layout.tsx      → Main layout with Navbar + Footer
+│   ├── page.tsx        → Landing Page
+│   ├── provinces/
+│   │   └── [province]/page.tsx   → Province-specific news
+│   ├── news/
+│   │   └── [id]/page.tsx         → Single article page
+├── components/
+│   ├── Navbar.tsx
+│   ├── Footer.tsx
+│   ├── NewsCard.tsx
+│   ├── Hero.tsx
+│   ├── ProvinceMap.tsx
+├── data/
+│   └── news.json       → Mock news data
+└── tailwind.config.js
